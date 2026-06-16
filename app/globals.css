@@ -121,6 +121,7 @@
   line-height: 1.1;
 }
 .stat {
+  font-family: var(--font-fraunces), Georgia, serif;
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 350;
   letter-spacing: -0.02em;

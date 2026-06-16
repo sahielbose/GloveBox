@@ -189,7 +189,7 @@ export function DeleteAccount() {
           <Button
             type="button"
             onClick={() => setArmed(true)}
-            className="bg-alert text-chalk hover:bg-alert/90"
+            className="bg-alert text-ink hover:bg-alert/90"
           >
             Delete my account…
           </Button>
@@ -234,7 +234,7 @@ function DeleteButton({ enabled }: { enabled: boolean }) {
     <Button
       type="submit"
       disabled={!enabled || pending}
-      className="bg-alert text-chalk hover:bg-alert/90"
+      className="bg-alert text-ink hover:bg-alert/90"
     >
       {pending ? (
         <>
