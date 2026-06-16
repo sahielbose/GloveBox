@@ -78,6 +78,7 @@ export async function checkQuote(input: {
   let fairLow = 0;
   let fairHigh = 0;
   let quotedTotal = 0;
+  let pricedTotal = 0; // only items we could price — the verdict compares against this
 
   const annotated = lineItems.map((item) => {
     quotedTotal += item.priceCents;
@@ -94,6 +95,7 @@ export async function checkQuote(input: {
       const itemHigh = round(laborHigh + partsHigh);
       fairLow += itemLow;
       fairHigh += itemHigh;
+      pricedTotal += item.priceCents;
 
       // Overcharge flag: meaningfully above the fair high.
       if (item.priceCents > itemHigh * 1.6) {
@@ -134,6 +136,7 @@ export async function checkQuote(input: {
     if (fee) {
       fairLow += fee.typicalLowCents;
       fairHigh += fee.typicalHighCents;
+      pricedTotal += item.priceCents;
       if (item.priceCents > fee.typicalHighCents * 1.5) {
         flags.push({
           lineItem: item.description,
@@ -146,13 +149,19 @@ export async function checkQuote(input: {
       return { ...item, matchedJob: fee.label, itemFairLowCents: fee.typicalLowCents, itemFairHighCents: fee.typicalHighCents, priced: true };
     }
 
-    // Unknown line item: can't price it, so treat as par (neutral to the verdict).
-    fairLow += item.priceCents;
-    fairHigh += item.priceCents;
+    // Unknown line item: we can't price it, so it is EXCLUDED from the fair range
+    // and the verdict (not silently treated as fair) — and surfaced as a flag so a
+    // padded extra can't hide.
+    flags.push({
+      lineItem: item.description,
+      reason: `We couldn't match "${item.description}" (${dollars(item.priceCents)}) to a standard job, so it isn't in the fair-range read — ask the shop exactly what it covers.`,
+      severity: "soon",
+    });
     return { ...item, matchedJob: null, itemFairLowCents: null, itemFairHighCents: null, priced: false };
   });
 
-  const verdict = decideVerdict(quotedTotal, fairLow, fairHigh);
+  // Verdict compares only the items we could actually price.
+  const verdict = decideVerdict(pricedTotal, fairLow, fairHigh);
   const provenance = [...PRICING_PROVENANCE, `${segment} segment`, rate.label];
   const summary = await buildSummary(
     vehicle,

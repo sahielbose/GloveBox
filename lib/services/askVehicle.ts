@@ -86,12 +86,14 @@ export async function askVehicle(input: {
     maxTokens: 800,
   });
 
-  // Keep only citations actually referenced in the answer (penalize none-cited).
+  // Keep only citations actually referenced in the answer. If the model cited
+  // nothing, the answer is NOT citation-grounded — report that honestly rather
+  // than back-filling all retrieved chunks and claiming grounded:true.
   const used = citations.filter((c) => answer.includes(`[${c.n}]`));
   return AskResultSchema.parse({
     answer,
-    citations: used.length ? used : citations,
-    grounded: true,
+    citations: used,
+    grounded: used.length > 0,
     llmUsed: true,
   });
 }
