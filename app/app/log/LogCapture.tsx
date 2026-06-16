@@ -117,7 +117,7 @@ export function LogCapture() {
         {audio && !recording && (
           <span className="inline-flex items-center gap-1.5 text-sm text-ash">
             <Check size={14} className="text-ok" aria-hidden /> Voice memo ready
-            <button type="button" onClick={() => setAudio(null)} className="text-ash hover:text-chalk" aria-label="Discard voice memo">
+            <button type="button" onClick={() => setAudio(null)} className="-my-2 inline-flex min-h-11 min-w-11 items-center justify-center text-ash hover:text-chalk focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage" aria-label="Discard voice memo">
               <Trash2 size={13} aria-hidden />
             </button>
           </span>

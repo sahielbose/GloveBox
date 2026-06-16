@@ -80,7 +80,7 @@ export function PrepVisit({ campaignId, component, remedy }: Props) {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-chip p-1 text-ash hover:text-chalk"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-chip text-ash hover:text-chalk focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage"
           aria-label="Close call script"
         >
           <X size={15} aria-hidden />

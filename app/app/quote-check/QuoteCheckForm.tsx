@@ -116,7 +116,7 @@ export function QuoteCheckForm({
                       type="button"
                       onClick={() => removeRow(row.id)}
                       aria-label="Remove line item"
-                      className="inline-flex items-center justify-center rounded-chip border border-hairline px-2 py-2 text-ash transition-colors hover:border-alert/40 hover:text-alert focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage sm:col-span-1"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-chip border border-hairline px-2 py-2 text-ash transition-colors hover:border-alert/40 hover:text-alert focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage sm:col-span-1"
                     >
                       <X size={14} aria-hidden />
                     </button>

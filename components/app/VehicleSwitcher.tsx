@@ -33,7 +33,7 @@ export function VehicleSwitcher({ vehicles, activeId }: { vehicles: Item[]; acti
             router.refresh();
           })
         }
-        className="rounded-btn border border-hairline bg-surface px-3 py-1.5 text-sm text-chalk focus:border-sage focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage"
+        className="min-h-11 rounded-btn border border-hairline bg-surface px-3 py-1.5 text-sm text-chalk focus:border-sage focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage"
         aria-label="Active vehicle"
       >
         {vehicles.map((v) => (
@@ -42,7 +42,7 @@ export function VehicleSwitcher({ vehicles, activeId }: { vehicles: Item[]; acti
           </option>
         ))}
       </select>
-      <Link href="/app/onboarding" className="rounded-btn border border-hairline p-1.5 text-ash hover:text-chalk" aria-label="Add a car">
+      <Link href="/app/onboarding" className="inline-flex h-11 w-11 items-center justify-center rounded-btn border border-hairline text-ash hover:text-chalk focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage" aria-label="Add a car">
         <Plus size={16} />
       </Link>
     </div>

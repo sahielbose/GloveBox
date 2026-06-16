@@ -146,8 +146,13 @@
   .marquee-track,
   .animate-marquee,
   .animate-fade-up,
-  .animate-card-in {
+  .animate-card-in,
+  .animate-pulse {
     animation: none !important;
+  }
+  /* keep spinners legible (don't freeze mid-rotation) but slow them right down */
+  .animate-spin {
+    animation-duration: 1.6s !important;
   }
   * {
     scroll-behavior: auto !important;
