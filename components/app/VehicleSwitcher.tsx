@@ -33,7 +33,7 @@ export function VehicleSwitcher({ vehicles, activeId }: { vehicles: Item[]; acti
             router.refresh();
           })
         }
-        className="rounded-btn border border-hairline bg-surface px-3 py-1.5 text-sm text-chalk outline-none focus:border-sage"
+        className="rounded-btn border border-hairline bg-surface px-3 py-1.5 text-sm text-chalk focus:border-sage focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage"
         aria-label="Active vehicle"
       >
         {vehicles.map((v) => (

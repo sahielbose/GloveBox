@@ -37,7 +37,7 @@ export default async function SignInPage() {
               required
               autoFocus
               placeholder="you@example.com"
-              className="mt-1.5 w-full rounded-btn border border-hairline bg-surface px-4 py-3 text-chalk outline-none placeholder:text-ash/60 focus:border-sage"
+              className="mt-1.5 w-full rounded-btn border border-hairline bg-surface px-4 py-3 text-chalk placeholder:text-ash/60 focus:border-sage focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage"
             />
           </label>
           <button
