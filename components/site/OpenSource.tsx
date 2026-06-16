@@ -1,4 +1,5 @@
 import { GithubStars } from "@/components/site/GithubStars";
+import { OpenSourceCards } from "@/components/site/OpenSourceCards";
 
 const REPO_URL = "https://github.com/sahielbose/GloveBox";
 
@@ -56,28 +57,7 @@ export function OpenSource() {
           </div>
         </div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2">
-          {STATS.map((s) => {
-            const external = s.href.startsWith("http");
-            return (
-              <a
-                key={s.title}
-                href={s.href}
-                {...(external
-                  ? { target: "_blank", rel: "noopener noreferrer" }
-                  : {})}
-                className="group block rounded-card border border-hairline-l bg-paper p-7 transition-colors hover:border-cream-ink/25 md:p-8"
-              >
-                <span className="stat block text-cream-ink">{s.stat}</span>
-                <h3 className="mt-4 text-lg font-medium text-cream-ink">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-cream-ink/70">{s.body}</p>
-                <span className="mt-5 inline-flex items-center gap-1.5 font-mono text-xs text-cream-ink/55 transition-colors group-hover:text-cream-ink/80">
-                  — {s.attribution}
-                </span>
-              </a>
-            );
-          })}
-        </div>
+        <OpenSourceCards stats={STATS} />
       </div>
     </section>
   );
