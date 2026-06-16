@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0c0b0a;
+  --surface: #161412;
+  --chalk: #f4f1eb;
+  --ash: #8f8b83;
+  --bone: #f1ede4;
+  --paper: #fbfaf6;
+  --cream-ink: #1a1714;
+  --sage: #8e9b79;
+  --sage-hover: #7f8c6a;
+  --hairline-d: rgba(244, 241, 235, 0.1);
+  --hairline-l: rgba(26, 23, 20, 0.12);
+  --ok: #6fa873;
+  --warn: #d8a24a;
+  --alert: #ce5b52;
+}
+
+@layer base {
+  * {
+    border-color: var(--hairline-d);
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: var(--ink);
+    color: var(--chalk);
+  }
+  ::selection {
+    background: var(--sage);
+    color: var(--ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--sage);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  /* Display headlines lean on Fraunces, set thin with tight tracking. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-fraunces), Georgia, serif;
+    font-weight: 350;
+    letter-spacing: -0.018em;
+    line-height: 1.06;
+  }
+}
+
+@layer components {
+  .container-gb {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 5vw, 2.5rem);
+  }
+
+  /* Signature eyebrow: tiny sage dot + uppercase ash label. */
+  .eyebrow {
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ash);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--sage);
+    flex: none;
+  }
+
+  /* Section vertical rhythm — tall and breathing. */
+  .section {
+    padding-block: clamp(5rem, 10vw, 9rem);
+  }
+
+  /* Honest data-provenance chips (mono, ash). */
+  .chip {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--ash);
+    border: 1px solid var(--hairline-d);
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+}
+
+/* Display type scale helpers (clamped) used by marketing + app headers. */
+.display-xl {
+  font-size: clamp(2.75rem, 6vw, 5.25rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+}
+.display-l {
+  font-size: clamp(2.25rem, 4.5vw, 3.75rem);
+  font-weight: 350;
+  letter-spacing: -0.018em;
+  line-height: 1.06;
+}
+.display-m {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+.stat {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 350;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.lead {
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  line-height: 1.5;
+}
+
+/* Marquee track is duplicated; translate -50% to loop seamlessly. */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+}
+.marquee-mask:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .animate-marquee,
+  .animate-fade-up,
+  .animate-card-in {
+    animation: none !important;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}
