@@ -141,7 +141,7 @@ async function inspectionSuite(): Promise<Suite> {
     }
   }
   const acc = total === 0 ? 1 : exact / total;
-  const th = (thresholds as Record<string, { accuracy: number; maxSafetyUnderClass: number }>)["inspection"];
+  const th = thresholds["inspection"];
   return {
     name: "MPI digitization",
     kind: "gate",

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Wrench,
+  ClipboardCheck,
   ShieldAlert,
   ReceiptText,
   Stethoscope,
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 const LINKS = [
   { href: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/app/maintenance", label: "Maintenance", icon: Wrench },
+  { href: "/app/inspection", label: "Health check", icon: ClipboardCheck },
   { href: "/app/recalls", label: "Recall radar", icon: ShieldAlert },
   { href: "/app/quote-check", label: "Quote check", icon: ReceiptText },
   { href: "/app/symptoms", label: "Symptom decoder", icon: Stethoscope },
