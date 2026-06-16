@@ -234,3 +234,8 @@ export async function updateUserSettings(
 ) {
   await db.update(users).set(data).where(eq(users.id, userId));
 }
+
+/** Hard-delete the user row — cascades accounts, sessions, reminders, and vehicles. */
+export async function deleteUser(userId: string) {
+  await db.delete(users).where(eq(users.id, userId));
+}

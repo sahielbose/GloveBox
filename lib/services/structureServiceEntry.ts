@@ -66,7 +66,7 @@ export async function structureServiceEntry(
 }
 
 function deterministicParse(text: string): ServiceEntry {
-  const mileage = matchNum(text, /(\d[\d,]{2,})\s*(?:mi|miles|k\b|odometer)/i) ?? matchNum(text, /at\s+(\d[\d,]{2,})/i);
+  const mileage = extractMileage(text);
   const cost = matchNum(text, /\$\s*([\d,]+(?:\.\d{2})?)/);
   const job = findJob(text);
   return ServiceEntrySchema.parse({
@@ -87,6 +87,18 @@ function matchNum(text: string, re: RegExp): number | null {
   if (!m) return null;
   const n = Number(m[1].replace(/,/g, "").replace(/k$/i, "000"));
   return Number.isNaN(n) ? null : n;
+}
+
+/** Mileage: "48,000 miles", "48000 mi", "at 72000", and the "k" shorthand "48k". */
+function extractMileage(text: string): number | null {
+  const m =
+    text.match(/(\d[\d,]*)\s*(k)?\s*(?:mi\b|miles\b|odometer|mileage)/i) ||
+    text.match(/\bat\s+(\d[\d,]*)\s*(k)?\b/i) ||
+    text.match(/\b(\d[\d,]*)\s*(k)\b/i);
+  if (!m) return null;
+  const base = Number(m[1].replace(/,/g, ""));
+  if (Number.isNaN(base)) return null;
+  return m[2] ? base * 1000 : base; // "k" → thousands
 }
 
 function firstWords(text: string, n: number): string {

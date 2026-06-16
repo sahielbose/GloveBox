@@ -29,4 +29,10 @@ export const SERVICE_ENTRY_CASES: ServiceEntryCase[] = [
     text: "New battery installed at 72000 miles",
     expect: { mileage: 72000, jobKey: "battery_replace" },
   },
+  {
+    name: "Mileage with 'k' shorthand",
+    vehicle: V,
+    text: "Tire rotation at 48k, paid $40",
+    expect: { mileage: 48000, costCents: 4000, jobKey: "tire_rotation" },
+  },
 ];

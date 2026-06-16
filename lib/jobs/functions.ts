@@ -59,9 +59,13 @@ export const maintenanceDigest = inngest.createFunction(
       .from(vehicles)
       .innerJoin(users, eq(vehicles.userId, users.id));
 
+    // The cron fires weekly (Mondays). Weekly users get every run; monthly users
+    // only the first Monday of the month; "off" never.
+    const isFirstMondayOfMonth = new Date().getDate() <= 7;
     let sent = 0;
     for (const row of rows) {
       if (row.freq === "off") continue;
+      if (row.freq === "monthly" && !isFirstMondayOfMonth) continue;
       try {
         const records = await listServiceRecords(row.v.id);
         const health = computeHealth(

@@ -9,6 +9,7 @@ import {
   getUserVehicles,
   updateUserSettings,
   deleteVehicle,
+  deleteUser,
   listServiceRecords,
   listQuoteChecks,
   listSymptomReports,
@@ -137,6 +138,10 @@ export async function deleteAccountAction(
   for (const v of vehicles) {
     await deleteVehicle(user.id, v.id);
   }
+
+  // Delete the user row itself — cascades accounts, sessions, and reminders that
+  // a per-vehicle delete leaves behind (the schema FKs are onDelete: cascade).
+  await deleteUser(user.id);
 
   // Sign out clears the session and redirects home. signOut throws a redirect,
   // so anything after it won't run — that's expected.
