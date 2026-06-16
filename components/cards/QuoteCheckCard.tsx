@@ -9,6 +9,8 @@ export type QuoteCardData = {
   shopName?: string | null;
   jobLabel?: string;
   totalCents: number;
+  /** Sum of items we could price — the figure compared to the fair range. Falls back to total. */
+  pricedTotalCents?: number;
   fairLowCents: number;
   fairHighCents: number;
   verdict: Verdict;
@@ -21,8 +23,12 @@ export type QuoteCardData = {
  * typical price near you, with the quoted figure as a marker, plus flagged items.
  */
 export function QuoteCheckCard({ data }: { data: QuoteCardData }) {
-  const min = Math.min(data.fairLowCents * 0.7, data.totalCents * 0.95);
-  const max = Math.max(data.fairHighCents * 1.25, data.totalCents * 1.05);
+  // The marker + range comparison use the PRICED total so the verdict badge and
+  // the marker position can never contradict each other.
+  const priced = data.pricedTotalCents ?? data.totalCents;
+  const unpriced = data.totalCents - priced;
+  const min = Math.min(data.fairLowCents * 0.7, priced * 0.95);
+  const max = Math.max(data.fairHighCents * 1.25, priced * 1.05);
   const span = Math.max(1, max - min);
   const pos = (c: number) => `${Math.min(100, Math.max(0, ((c - min) / span) * 100))}%`;
   const status = VERDICT_TO_STATUS[data.verdict];
@@ -58,13 +64,14 @@ export function QuoteCheckCard({ data }: { data: QuoteCardData }) {
           />
           <div
             className="absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-ink"
-            style={{ left: pos(data.totalCents), background: status === "ok" ? "var(--ok)" : status === "soon" ? "var(--warn)" : "var(--alert)" }}
-            aria-label="quoted amount marker"
+            style={{ left: pos(priced), background: status === "ok" ? "var(--ok)" : status === "soon" ? "var(--warn)" : "var(--alert)" }}
+            aria-label="priced-items marker"
           />
         </div>
         <div className="mt-1.5 font-mono text-xs text-ash">
           {formatMoney(data.fairLowCents)}–{formatMoney(data.fairHighCents)}
-          <span className="text-ash"> · you were quoted {formatMoney(data.totalCents)}</span>
+          <span className="text-ash"> · priced items {formatMoney(priced)}</span>
+          {unpriced > 0 && <span className="text-ash"> · +{formatMoney(unpriced)} unpriced</span>}
         </div>
       </div>
 

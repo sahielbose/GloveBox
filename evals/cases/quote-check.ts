@@ -82,6 +82,16 @@ export const QUOTE_CASES: QuoteCase[] = [
     expectFlags: [],
   },
   {
+    name: "Unpriced extra is flagged, not diluted into a fair verdict (Camry)",
+    vehicle: { make: "Toyota", model: "Camry", year: 2018, mileage: 60000 },
+    lineItems: [
+      { description: "Full synthetic oil change", priceCents: d(75) },
+      { description: "Premium protection package", priceCents: d(800) },
+    ],
+    expectVerdict: ["fair"], // verdict reflects only the priceable $75, not the $875 total
+    expectFlags: ["Premium protection"], // the unpriced extra must be surfaced
+  },
+  {
     name: "Egregiously overpriced multi-line (Camry)",
     vehicle: { make: "Toyota", model: "Camry", year: 2018, mileage: 60000 },
     lineItems: [

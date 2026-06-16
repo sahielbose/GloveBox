@@ -36,6 +36,7 @@ export type QuoteFlag = z.infer<typeof QuoteFlagSchema>;
 export const QuoteCheckResultSchema = z.object({
   verdict: z.enum(["fair", "high", "overpriced"]),
   quotedTotalCents: z.number().int(),
+  pricedTotalCents: z.number().int(), // sum of items we could price — comparable to the fair range
   fairLowCents: z.number().int(),
   fairHighCents: z.number().int(),
   flags: z.array(QuoteFlagSchema),
@@ -160,22 +161,26 @@ export async function checkQuote(input: {
     return { ...item, matchedJob: null, itemFairLowCents: null, itemFairHighCents: null, priced: false };
   });
 
-  // Verdict compares only the items we could actually price.
+  // Verdict + summary compare only the items we could actually price, so the
+  // verdict, the prose, and the card marker all reference the same figure.
   const verdict = decideVerdict(pricedTotal, fairLow, fairHigh);
   const provenance = [...PRICING_PROVENANCE, `${segment} segment`, rate.label];
+  const unpricedCents = quotedTotal - pricedTotal;
   const summary = await buildSummary(
     vehicle,
     verdict,
-    quotedTotal,
+    pricedTotal,
     fairLow,
     fairHigh,
     flags,
     input.shopName,
+    unpricedCents,
   );
 
   return QuoteCheckResultSchema.parse({
     verdict,
     quotedTotalCents: quotedTotal,
+    pricedTotalCents: pricedTotal,
     fairLowCents: fairLow,
     fairHighCents: fairHigh,
     flags,
@@ -196,18 +201,23 @@ function decideVerdict(total: number, low: number, high: number): Verdict {
 async function buildSummary(
   vehicle: Vehicle,
   verdict: Verdict,
-  total: number,
+  total: number, // the PRICED total — comparable to the fair range
   low: number,
   high: number,
   flags: QuoteFlag[],
   shopName?: string | null,
+  unpricedCents = 0,
 ): Promise<string> {
+  const pricedNote =
+    unpricedCents > 0
+      ? ` for the items we could price (plus ${dollars(unpricedCents)} in line items we couldn't match — see flags)`
+      : "";
   const deterministic =
     verdict === "fair"
-      ? `At ${dollars(total)}, this quote${shopName ? ` from ${shopName}` : ""} is in line with the typical ${dollars(low)}–${dollars(high)} for your ${vehicleLabel(vehicle)}. ${flags.length ? "A couple of line items are still worth a quick question (below)." : "Nothing stands out as padded."}`
+      ? `At ${dollars(total)}${pricedNote}, this quote${shopName ? ` from ${shopName}` : ""} is in line with the typical ${dollars(low)}–${dollars(high)} for your ${vehicleLabel(vehicle)}. ${flags.length ? "A couple of line items are still worth a quick question (below)." : "Nothing stands out as padded."}`
       : verdict === "high"
-        ? `At ${dollars(total)}, this is on the high side of the typical ${dollars(low)}–${dollars(high)} for your ${vehicleLabel(vehicle)}. It's not outrageous, but the flagged items are worth questioning before you say yes.`
-        : `At ${dollars(total)}, this runs well above the typical ${dollars(low)}–${dollars(high)} for your ${vehicleLabel(vehicle)}. Get a second quote and challenge the flagged line items.`;
+        ? `At ${dollars(total)}${pricedNote}, this is on the high side of the typical ${dollars(low)}–${dollars(high)} for your ${vehicleLabel(vehicle)}. It's not outrageous, but the flagged items are worth questioning before you say yes.`
+        : `At ${dollars(total)}${pricedNote}, this runs well above the typical ${dollars(low)}–${dollars(high)} for your ${vehicleLabel(vehicle)}. Get a second quote and challenge the flagged line items.`;
 
   if (!isLLMAvailable()) return deterministic;
   try {
@@ -216,7 +226,7 @@ async function buildSummary(
         "You write a 2-3 sentence, plain-English summary of a car repair quote review for the owner. " +
         "You are given the verdict and the computed dollar figures. NEVER change, invent, or add any price — only use the numbers provided. " +
         "Be calm and specific, not alarmist. End by reminding them this is an estimate, not a guarantee.",
-      prompt: `Vehicle: ${vehicleLabel(vehicle)}\nVerdict: ${verdict}\nQuoted total: ${dollars(total)}\nTypical range: ${dollars(low)}–${dollars(high)}\nFlags: ${flags.map((f) => f.lineItem).join("; ") || "none"}\n\nWrite the summary.`,
+      prompt: `Vehicle: ${vehicleLabel(vehicle)}\nVerdict: ${verdict}\nPriceable items total: ${dollars(total)}\nTypical range: ${dollars(low)}–${dollars(high)}\n${unpricedCents > 0 ? `Items we couldn't price: ${dollars(unpricedCents)}\n` : ""}Flags: ${flags.map((f) => f.lineItem).join("; ") || "none"}\n\nWrite the summary.`,
       maxTokens: 220,
       offline: deterministic,
     });

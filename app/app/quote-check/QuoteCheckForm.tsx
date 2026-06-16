@@ -165,6 +165,7 @@ export function QuoteCheckForm({
               mileage,
               shopName: state?.ok ? state.shopName : null,
               totalCents: result.quotedTotalCents,
+              pricedTotalCents: result.pricedTotalCents,
               fairLowCents: result.fairLowCents,
               fairHighCents: result.fairHighCents,
               verdict: result.verdict,
