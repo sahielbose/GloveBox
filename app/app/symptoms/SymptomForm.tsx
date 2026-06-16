@@ -119,7 +119,9 @@ export function SymptomForm({ vehicleLabel }: { vehicleLabel: string }) {
               repair story.
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
-              <LinkButton href="/app/quote-check">
+              <LinkButton
+                href={topCause ? `/app/quote-check?item=${encodeURIComponent(topCause)}` : "/app/quote-check"}
+              >
                 Turn into a Quote Check <ArrowRight size={15} aria-hidden />
               </LinkButton>
               <RepairStoryPanel

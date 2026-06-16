@@ -8,24 +8,27 @@ import { formatMoney, cn } from "@/lib/utils";
 import { runQuoteCheck, type QuoteCheckState } from "./actions";
 
 type RegionOption = { value: string; label: string };
-type ManualRow = { id: number };
+type ManualRow = { id: number; description?: string };
 
 export function QuoteCheckForm({
   vehicleLabel,
   mileage,
   regions,
+  prefillItem,
 }: {
   vehicleLabel: string;
   mileage: number | null;
   regions: RegionOption[];
+  prefillItem?: string;
 }) {
   const [state, formAction, pending] = useActionState<QuoteCheckState, FormData>(
     runQuoteCheck,
     null,
   );
 
-  // Optional manual line items — start with none; owner can add rows.
-  const [rows, setRows] = useState<ManualRow[]>([]);
+  // Optional manual line items. When arriving from the symptom decoder we seed
+  // the likely repair as the first row so the owner just adds the shop's price.
+  const [rows, setRows] = useState<ManualRow[]>(prefillItem ? [{ id: 0, description: prefillItem }] : []);
   const [nextId, setNextId] = useState(1);
   const addRow = () => {
     setRows((r) => [...r, { id: nextId }]);
@@ -103,6 +106,7 @@ export function QuoteCheckForm({
                     <input
                       name="itemDescription"
                       type="text"
+                      defaultValue={row.description ?? ""}
                       placeholder="Job or part (e.g. front brake pads)"
                       className={cn(inputClass, "sm:col-span-7")}
                     />

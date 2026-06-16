@@ -12,9 +12,14 @@ import { QuoteCheckForm } from "./QuoteCheckForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function QuoteCheckPage() {
+export default async function QuoteCheckPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ item?: string }>;
+}) {
   const user = await requireUser();
   const { active } = await getActiveVehicle(user.id);
+  const { item: prefillItem } = await searchParams;
 
   if (!active) {
     return (
@@ -52,7 +57,7 @@ export default async function QuoteCheckPage() {
       </p>
 
       <div className="mt-8">
-        <QuoteCheckForm vehicleLabel={label} mileage={active.mileage ?? null} regions={regions} />
+        <QuoteCheckForm vehicleLabel={label} mileage={active.mileage ?? null} regions={regions} prefillItem={prefillItem?.slice(0, 120)} />
       </div>
 
       {/* Quote history */}
