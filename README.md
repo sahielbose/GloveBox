@@ -12,7 +12,8 @@ GloveBox maps the capabilities of a dealership AI onto the individual car owner,
 
 - **Quote Check ★** — paste a repair estimate, get a fair-price verdict for your make/model/region plus the line items worth questioning. Pricing is a deterministic curated model (labor-time × regional rate + parts range); the LLM never invents a price.
 - **Recall Radar** — official NHTSA/CPSC recalls matched to your car, with severity, remedy, campaign ID, and a "Prep visit" booking-script draft. A daily background job re-checks and emails new matches.
-- **Maintenance timeline** — what's due by exact mileage and time, from a curated interval dataset (labeled estimates).
+- **Maintenance timeline** — what's due by exact mileage and time, from a curated interval dataset (labeled estimates), each item showing typical labor hours + a fair-cost range.
+- **Health Check** — paste or upload (photo/PDF, OCR'd) the shop's green/yellow/red multi-point-inspection sheet → a structured Health Check with measurements and plain-English urgency; safety items are never softened.
 - **Symptom Decoder** — describe a noise/smell/warning light or enter a DTC → likely cause, urgency (safe / soon / **stop driving**), and rough cost. Safety-biased: brakes, steering, overheating, airbags, tires, and oil are never under-warned.
 - **Service Log** — add entries by voice or text (auto-structured), attach receipts, export a clean CSV/PDF history.
 - **Ask GloveBox** — grounded Q&A over your car's own context (schedules, cached recalls, your uploaded docs) with citations; it declines rather than invent.
