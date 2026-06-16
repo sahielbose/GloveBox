@@ -34,7 +34,7 @@ export default async function DashboardPage() {
   const health = computeHealth(
     toVehicle(active),
     active.mileage,
-    records.map((r) => ({ type: r.type, mileage: r.mileage, date: r.date })),
+    records.map((r) => ({ type: r.type, jobKey: r.jobKey, mileage: r.mileage, date: r.date })),
   );
 
   const recalls = await getRecallMatches(active.id);

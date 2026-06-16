@@ -112,6 +112,7 @@ export const serviceRecords = pgTable(
     date: timestamp("date", { mode: "date" }).notNull(),
     mileage: integer("mileage"),
     type: text("type").notNull(), // oil_change | brakes | tires | ...
+    jobKey: text("jobKey"), // links to data/labor-times.ts for history matching
     description: text("description"),
     parts: jsonb("parts").$type<{ name: string; partNumber?: string }[]>(),
     laborHours: real("laborHours"),

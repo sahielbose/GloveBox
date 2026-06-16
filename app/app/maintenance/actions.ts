@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth-helpers";
 import { getActiveVehicle } from "@/lib/app-context";
 import { addServiceRecord } from "@/lib/db/queries";
+import { MAINTENANCE_INTERVALS } from "@/data";
 
 /**
  * Mark a maintenance item done → writes a service record at the car's current
@@ -15,11 +16,15 @@ export async function markServiceDoneAction(service: string) {
   const { active } = await getActiveVehicle(user.id);
   if (!active) return { ok: false as const, error: "No active vehicle." };
 
+  // Carry the interval's jobKey so future computeHealth runs match this record
+  // precisely (not just by service-name keyword).
+  const jobKey = MAINTENANCE_INTERVALS.find((iv) => iv.service === service)?.jobKey ?? null;
+
   await addServiceRecord(active.id, {
     date: new Date(),
     mileage: active.mileage,
     type: service,
-    // jobKey: none — service_record has no jobKey column; the service label drives matching.
+    jobKey,
     source: "maintenance",
     description: "Marked done from maintenance",
   });

@@ -67,7 +67,7 @@ export const maintenanceDigest = inngest.createFunction(
         const health = computeHealth(
           toVehicle(row.v),
           row.v.mileage,
-          records.map((r) => ({ type: r.type, jobKey: null, mileage: r.mileage, date: r.date })),
+          records.map((r) => ({ type: r.type, jobKey: r.jobKey, mileage: r.mileage, date: r.date })),
         );
         const due = health.items.filter((i) => i.status !== "ok");
         if (due.length === 0) continue;

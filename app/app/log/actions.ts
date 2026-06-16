@@ -73,6 +73,7 @@ export async function addLogEntryAction(form: FormData): Promise<AddEntryResult>
     date: entry.date ? new Date(entry.date) : new Date(),
     mileage: entry.mileage ?? active.mileage,
     type: entry.type,
+    jobKey: entry.jobKey,
     description: entry.description,
     parts: entry.parts,
     laborHours: entry.laborHours,

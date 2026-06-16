@@ -1,0 +1,1 @@
+ALTER TABLE "service_record" ADD COLUMN "jobKey" text;

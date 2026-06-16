@@ -45,7 +45,7 @@ export default async function MaintenancePage() {
   const health = computeHealth(
     toVehicle(active),
     active.mileage,
-    records.map((r) => ({ type: r.type, mileage: r.mileage, date: r.date })),
+    records.map((r) => ({ type: r.type, jobKey: r.jobKey, mileage: r.mileage, date: r.date })),
   );
 
   const items = [...health.items].sort((a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status]);
