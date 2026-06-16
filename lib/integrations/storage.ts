@@ -33,12 +33,25 @@ export async function saveFile(
   return { url: `/api/files/${rel.split(path.sep).join("/")}`, relPath: rel };
 }
 
+/**
+ * True when a relative path is a safe, literal `<vehicleId>/<file>` with no
+ * traversal. Both the ownership check and the read MUST gate on this so they
+ * can never disagree about which vehicle's directory is being touched.
+ */
+function isSafeRelPath(relPath: string): boolean {
+  const segments = relPath.split("/");
+  if (segments.length < 2) return false;
+  if (segments.some((s) => s === "" || s === "." || s === ".." || s.includes("\\"))) return false;
+  // the resolved path must be exactly ROOT joined with the literal segments
+  const abs = path.resolve(ROOT, relPath);
+  return abs === path.join(ROOT, ...segments) && abs.startsWith(ROOT + path.sep);
+}
+
 /** Resolve a stored relative path back to absolute bytes, guarding traversal. */
 export async function readFile(relPath: string): Promise<Buffer | null> {
-  const abs = path.resolve(ROOT, relPath);
-  if (!abs.startsWith(ROOT + path.sep)) return null; // path traversal guard
+  if (!isSafeRelPath(relPath)) return null;
   try {
-    return await fs.readFile(abs);
+    return await fs.readFile(path.resolve(ROOT, relPath));
   } catch {
     return null;
   }
@@ -46,6 +59,6 @@ export async function readFile(relPath: string): Promise<Buffer | null> {
 
 /** The vehicleId a stored file belongs to (first path segment) — for ownership checks. */
 export function vehicleIdFromPath(relPath: string): string | null {
-  const seg = relPath.split("/")[0];
-  return seg || null;
+  if (!isSafeRelPath(relPath)) return null; // reject traversal before the ownership check
+  return relPath.split("/")[0] || null;
 }
