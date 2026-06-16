@@ -1,5 +1,5 @@
 {
-  "quote-check": { "verdictAccuracy": 0.8, "flagRecall": 0.8 },
+  "quote-check": { "verdictAccuracy": 0.8, "flagRecall": 0.8, "flagPrecision": 0.8 },
   "symptom-urgency": { "accuracy": 0.8, "maxSafetyUnderWarn": 0 },
   "service-entry": { "fieldAccuracy": 0.8 },
   "inspection": { "accuracy": 0.8, "maxSafetyUnderClass": 0 }

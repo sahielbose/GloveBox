@@ -30,6 +30,12 @@ export async function embedOne(text: string): Promise<number[]> {
   return (await embed([text]))[0];
 }
 
+// Common English stop words — dropped from the local embedder so shared filler
+// ("the", "of"…) doesn't create spurious similarity between unrelated text.
+const STOP = new Set(
+  "a an and are as at be been by do does did for from had has have how i if in into is it its me my no not of on or our should so that the their then they this to was were what when where which who will with would you your".split(" "),
+);
+
 /** Deterministic hashing bag-of-words embedding, L2-normalized to 1536 dims. */
 function localEmbed(text: string): number[] {
   const vec = new Array<number>(EMBED_DIM).fill(0);
@@ -37,7 +43,7 @@ function localEmbed(text: string): number[] {
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
-    .filter((t) => t.length > 1);
+    .filter((t) => t.length > 1 && !STOP.has(t));
   for (const tok of tokens) {
     const h = hash(tok);
     const idx = h % EMBED_DIM;

@@ -28,6 +28,8 @@ async function quoteSuite(): Promise<Suite> {
   let verdictOk = 0;
   let flagNeeded = 0;
   let flagHit = 0;
+  let cleanCases = 0; // cases that should produce NO flags
+  let cleanNoFlags = 0; // ...and actually did
   const failures: string[] = [];
   for (const c of QUOTE_CASES) {
     const r = await checkQuote({ vehicle: c.vehicle, region: c.region, lineItems: c.lineItems });
@@ -39,17 +41,25 @@ async function quoteSuite(): Promise<Suite> {
       if (flagText.includes(want.toLowerCase())) flagHit++;
       else failures.push(`${c.name}: expected a flag on "${want}"`);
     }
+    // Flag precision: a case that expects no flags should not produce any.
+    if (c.expectFlags.length === 0) {
+      cleanCases++;
+      if (r.flags.length === 0) cleanNoFlags++;
+      else failures.push(`${c.name}: false-positive flag(s) on a clean quote — ${r.flags.map((f) => f.lineItem).join(", ")}`);
+    }
   }
   const verdictAcc = verdictOk / QUOTE_CASES.length;
   const flagRecall = flagNeeded === 0 ? 1 : flagHit / flagNeeded;
+  const flagPrecision = cleanCases === 0 ? 1 : cleanNoFlags / cleanCases;
   const th = thresholds["quote-check"];
   return {
     name: "Quote Check ★",
     kind: "gate",
-    passed: verdictAcc >= th.verdictAccuracy && flagRecall >= th.flagRecall,
+    passed: verdictAcc >= th.verdictAccuracy && flagRecall >= th.flagRecall && flagPrecision >= th.flagPrecision,
     metrics: {
       "verdict accuracy": pct(verdictAcc, th.verdictAccuracy),
       "flag recall": pct(flagRecall, th.flagRecall),
+      "flag precision": pct(flagPrecision, th.flagPrecision),
     },
     failures,
   };
@@ -220,6 +230,49 @@ async function vinSuite(): Promise<Suite> {
   return { name: "VIN decode", kind: "live", passed: ok === VIN_CASES.length, metrics: { "cases passed": `${ok}/${VIN_CASES.length}` }, failures };
 }
 
+async function assistantSuite(): Promise<Suite> {
+  if (!process.env.DATABASE_URL) {
+    return { name: "Assistant citations", kind: "live", passed: true, skipped: true, metrics: { status: "skipped (no DATABASE_URL)" }, failures: [] };
+  }
+  try {
+    const { db } = await import("@/lib/db/client");
+    const { users, vehicles } = await import("@/lib/db/schema");
+    const { ingestChunks } = await import("@/lib/rag");
+    const { askVehicle } = await import("@/lib/services/askVehicle");
+    const { eq } = await import("drizzle-orm");
+
+    const [u] = await db.insert(users).values({ email: `eval-assistant-${Date.now()}@glovebox.test`, name: "Eval" }).returning();
+    const [v] = await db.insert(vehicles).values({ userId: u.id, make: "Honda", model: "Civic", year: 2018, mileage: 50000 }).returning();
+    try {
+      await ingestChunks(v.id, [
+        { kind: "maintenance", content: "Oil change interval: change the engine oil and filter every 7500 miles or 6 months on this vehicle.", sourceLabel: "Curated schedule — oil change" },
+      ]);
+      const vehicle = { id: v.id, make: v.make, model: v.model, year: v.year, mileage: v.mileage };
+      const hit = await askVehicle({ question: "how often should I change the oil and filter", vehicle });
+      const miss = await askVehicle({ question: "what is the airspeed velocity of an unladen swallow", vehicle });
+
+      const failures: string[] = [];
+      if (!hit.grounded || hit.citations.length === 0) failures.push("retrievable question did not ground/cite its source");
+      if (miss.grounded || miss.citations.length > 0) failures.push("irrelevant question should decline: grounded=false, no citations");
+
+      return {
+        name: "Assistant citations",
+        kind: "live",
+        passed: failures.length === 0,
+        metrics: {
+          "grounds + cites relevant Q": hit.grounded && hit.citations.length > 0 ? "yes ✓" : "no ✗",
+          "declines irrelevant Q": !miss.grounded && miss.citations.length === 0 ? "yes ✓" : "no ✗",
+        },
+        failures,
+      };
+    } finally {
+      await db.delete(users).where(eq(users.id, u.id)); // cascade removes the vehicle + chunks
+    }
+  } catch (e) {
+    return { name: "Assistant citations", kind: "live", passed: true, skipped: true, metrics: { status: `skipped (db unavailable)` }, failures: [String((e as Error).message).slice(0, 80)] };
+  }
+}
+
 function pct(v: number, th: number): string {
   const s = `${(v * 100).toFixed(0)}%`;
   return v >= th ? `${s} ✓` : `${s} ✗ (need ${(th * 100).toFixed(0)}%)`;
@@ -234,6 +287,7 @@ async function main() {
     await inspectionSuite(),
     await recallSuite(),
     await vinSuite(),
+    await assistantSuite(),
   ];
 
   let gateFailed = false;
