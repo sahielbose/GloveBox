@@ -132,6 +132,16 @@ type RawNhtsaRecall = {
 function recallSeverity(r: RawNhtsaRecall): Status {
   // parkIt / parkOutSide are NHTSA's own do-not-drive / fire-risk flags.
   if (r.parkIt || r.parkOutSide) return "alert";
+  // Otherwise raise the genuinely "don't wait" classes (fire, sudden loss of
+  // control, airbag rupture/non-deployment) above the default "soon".
+  const text = `${r.Component ?? ""} ${r.Consequence ?? ""} ${r.Summary ?? ""}`.toLowerCase();
+  if (
+    /\bfire\b|catch (on )?fire|loss of (vehicle )?control|without warning|airbag.*(rupture|not deploy|fail to deploy|inadvertent)|brake (failure|loss|can fail)|loss of brak|steering (loss|failure)|injury or death/.test(
+      text,
+    )
+  ) {
+    return "alert";
+  }
   return "soon";
 }
 

@@ -91,13 +91,17 @@ export function decodeDtc(raw: string): DtcEntry | null {
 
   const system = SYSTEM_LETTER[code[0]] ?? "powertrain";
   const generic = code[1] === "0" || code[1] === "2";
-  const safety = system === "chassis" || (system === "body" && code.startsWith("B0"));
+  // Conservative safety bias: chassis (ABS/brakes/steering) AND body (airbag/SRS/
+  // restraint codes live in the B-range) are treated as safety-relevant when we
+  // can't resolve the exact code — we'd rather over-recommend an inspection than
+  // under-warn a possible restraint fault.
+  const safety = system === "chassis" || system === "body";
   return {
     code,
     meaning: `${cap(system)} trouble code ${code} — ${generic ? "generic (SAE)" : "manufacturer-specific"} code. Have it read against your vehicle's service data for the exact definition.`,
     system,
-    category: system === "chassis" ? "brakes/abs" : system === "network" ? "network" : "unknown",
-    urgency: safety ? "soon" : "soon",
+    category: system === "chassis" ? "brakes/abs" : system === "body" ? "airbag" : system === "network" ? "network" : "unknown",
+    urgency: "soon",
     safetyCritical: safety,
     commonCauses: [],
   };
