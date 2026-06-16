@@ -6,7 +6,7 @@ import { computeHealth } from "@/lib/services/computeHealth";
 import { vehicleLabel } from "@/lib/services/types";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Eyebrow, LinkButton } from "@/components/ui";
-import { formatMiles } from "@/lib/utils";
+import { formatMiles, formatMoney } from "@/lib/utils";
 import { MarkDone } from "./MarkDone";
 
 export const dynamic = "force-dynamic";
@@ -125,6 +125,17 @@ export default async function MaintenancePage() {
                       ]
                         .filter(Boolean)
                         .join(" / ")}
+                    </dd>
+                  </div>
+                )}
+                {item.estLowCents != null && item.estHighCents != null && (
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-ash">Typical cost</dt>
+                    <dd className="font-mono text-chalk">
+                      {formatMoney(item.estLowCents)}–{formatMoney(item.estHighCents)}
+                      {item.laborHours != null && (
+                        <span className="text-ash"> · ~{item.laborHours}h labor</span>
+                      )}
                     </dd>
                   </div>
                 )}

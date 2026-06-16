@@ -2,6 +2,7 @@ import { z } from "zod";
 import { MAINTENANCE_INTERVALS, MAINTENANCE_DISCLAIMER } from "@/data";
 import type { Status } from "@/lib/status";
 import type { Vehicle } from "./types";
+import { estimateJobCost } from "./pricing";
 
 export type ServiceHistoryItem = {
   type: string;
@@ -22,6 +23,9 @@ export const MaintenanceItemSchema = z.object({
   safetyCritical: z.boolean(),
   note: z.string(),
   reason: z.string(),
+  laborHours: z.number().nullable(),
+  estLowCents: z.number().int().nullable(),
+  estHighCents: z.number().int().nullable(),
 });
 export type MaintenanceItem = z.infer<typeof MaintenanceItemSchema>;
 
@@ -58,6 +62,7 @@ export function computeHealth(
         : null;
 
     const { status, reason } = evaluate(iv.intervalMiles, mileage, dueMileage, dueDate, now, !!iv.safetyCritical);
+    const cost = estimateJobCost(vehicle, iv.jobKey);
 
     return MaintenanceItemSchema.parse({
       service: iv.service,
@@ -71,6 +76,9 @@ export function computeHealth(
       safetyCritical: !!iv.safetyCritical,
       note: iv.note,
       reason,
+      laborHours: cost?.laborHours ?? null,
+      estLowCents: cost?.lowCents ?? null,
+      estHighCents: cost?.highCents ?? null,
     });
   });
 

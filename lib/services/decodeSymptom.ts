@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { decodeDtc, normalizeDtc, SAFETY_DTC_CATEGORIES } from "@/data";
-import { findJob, LABOR_JOBS, partsRange, resolveRate, segmentForMake, SEGMENT_MULTIPLIER } from "@/data";
+import { findJob } from "@/data";
 import { extract, isLLMAvailable } from "@/lib/llm/client";
 import { type Urgency } from "@/lib/status";
 import { type Vehicle, vehicleLabel } from "./types";
+import { estimateJobCost } from "./pricing";
 
 export const SymptomCauseSchema = z.object({
   cause: z.string(),
@@ -179,16 +180,6 @@ function guessJobFromText(text: string): string | null {
 }
 
 function estimateCost(vehicle: Vehicle, jobKey: string | null): { costLow: number | null; costHigh: number | null } {
-  if (!jobKey) return { costLow: null, costHigh: null };
-  const job = LABOR_JOBS.find((j) => j.key === jobKey);
-  if (!job) return { costLow: null, costHigh: null };
-  const seg = segmentForMake(vehicle.make);
-  const mult = SEGMENT_MULTIPLIER[seg];
-  const rate = resolveRate(null);
-  const laborLow = job.laborHours * rate.lowCents * mult.labor;
-  const laborHigh = job.laborHours * rate.highCents * mult.labor;
-  const pr = partsRange(job.partsKey);
-  const partsLow = pr ? pr.lowCents * mult.parts : 0;
-  const partsHigh = pr ? pr.highCents * mult.parts : 0;
-  return { costLow: Math.round(laborLow + partsLow), costHigh: Math.round(laborHigh + partsHigh) };
+  const est = estimateJobCost(vehicle, jobKey);
+  return { costLow: est?.lowCents ?? null, costHigh: est?.highCents ?? null };
 }
