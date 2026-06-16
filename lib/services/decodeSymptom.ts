@@ -41,10 +41,14 @@ const SAFETY_SIGNALS: { re: RegExp; category: string; floor: Urgency }[] = [
   { re: /grinding|metal on metal|metal-on-metal/i, category: "brakes", floor: "soon" },
   { re: /\bbrake|squeal|squeak when (i )?brak|soft pedal|spongy pedal/i, category: "brakes", floor: "soon" },
   { re: /overheat|temp(erature)? (gauge|warning|light)|steam|coolant (leak|boiling|pouring)|smoke (from|coming).*(hood|engine)|smell.*coolant/i, category: "overheating", floor: "stop" },
+  { re: /\babs\b|abs (light|warning)/i, category: "brakes", floor: "soon" },
   { re: /won.?t steer|can.?t steer|hard to steer|hard to turn|stiff steering|steering (is )?(lock|stiff|heavy)|wheel (shakes|wobbles|shaking) at (speed|highway)/i, category: "steering", floor: "soon" },
+  { re: /power steering (lost|out|fail|gone|loss|not working|isn.?t working)|lost power steering/i, category: "steering", floor: "soon" },
+  { re: /pull(s|ing)?( hard| sharply)? to (the |one )?(side|left|right)|pulls when (i )?brak/i, category: "steering", floor: "soon" },
   { re: /airbag|srs (light|warning)|restraint|seat ?belt (light|won)/i, category: "airbags", floor: "soon" },
-  { re: /blowout|tire (blew|burst)|bald tire|cord showing|tread (separat|coming)/i, category: "tires", floor: "stop" },
-  { re: /\btire|flat|low tread|wobble|vibrat.*(highway|speed)/i, category: "tires", floor: "soon" },
+  { re: /blowout|t[iy]re (blew|burst)|bald t[iy]re|cord showing|tread (separat|coming)/i, category: "tires", floor: "stop" },
+  { re: /\bt[iy]re|flat|low tread|wobble|vibrat.*(highway|speed)/i, category: "tires", floor: "soon" },
+  { re: /running hot|in the red|temp(erature)? (needle|gauge)?.*(red|high|hot|climbing|pegged)|gauge.*(red|hot)/i, category: "overheating", floor: "stop" },
   { re: /oil (light|pressure)|low oil pressure|ticking.*(no oil|low oil)/i, category: "oil", floor: "stop" },
   { re: /smell.*(gas|fuel|gasoline)|fuel (leak|smell|odor)|gasoline (smell|odor)|smell of (gas|fuel)/i, category: "fuel", floor: "soon" },
   { re: /burning smell|electrical (burning|smell)|smoke (from|in) (the )?(cabin|dash)/i, category: "fire", floor: "stop" },
@@ -131,6 +135,10 @@ export async function decodeSymptom(input: {
     summary = deterministicSummary(vehicle, urgency, detectedCats, dtcCode);
     jobKeyGuess = guessJobFromText(text);
   }
+
+  // A "stop driving" verdict is safety-relevant by definition — flag it even if
+  // the LLM (not the keyword floor) is what raised urgency.
+  safetyCritical = safetyCritical || urgency === "stop";
 
   // 4) Rough cost from the curated pricing model, if we can map to a job.
   const { costLow, costHigh } = estimateCost(vehicle, jobKeyGuess);

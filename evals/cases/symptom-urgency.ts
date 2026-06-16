@@ -31,4 +31,10 @@ export const SYMPTOM_CASES: SymptomCase[] = [
   { name: "DTC P0217 overheat", vehicle: V, dtc: "P0217", expectUrgency: "stop", safety: true },
   { name: "DTC U0151 airbag comms", vehicle: V, dtc: "U0151", expectUrgency: "soon", safety: true },
   { name: "DTC P0442 EVAP", vehicle: V, dtc: "P0442", expectUrgency: "safe", safety: false },
+  // edge phrasings the offline safety floor must catch (audit-driven)
+  { name: "ABS light", vehicle: V, text: "the ABS light came on", expectUrgency: "soon", safety: true },
+  { name: "Lost power steering", vehicle: V, text: "I lost power steering while driving", expectUrgency: "soon", safety: true },
+  { name: "Pulls to one side braking", vehicle: V, text: "the car pulls hard to the right when I brake", expectUrgency: "soon", safety: true },
+  { name: "Running hot / temp in red", vehicle: V, text: "temperature gauge is in the red and running hot", expectUrgency: "stop", safety: true },
+  { name: "British spelling tyre blowout", vehicle: V, text: "had a tyre blowout on the motorway", expectUrgency: "stop", safety: true },
 ];
