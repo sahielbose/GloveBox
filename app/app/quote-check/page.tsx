@@ -91,7 +91,7 @@ export default async function QuoteCheckPage() {
                     </div>
                     <div className="mt-0.5 font-mono text-xs text-ash">
                       {formatMoney(q.totalCents)}{" "}
-                      <span className="text-ash/70">
+                      <span className="text-ash">
                         vs typical {formatMoney(q.fairLowCents)}–{formatMoney(q.fairHighCents)}
                       </span>
                     </div>

@@ -44,7 +44,7 @@ export function OpenSource() {
       <div className="container-gb section">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <span className="eyebrow !text-cream-ink/60">Open source</span>
+            <span className="eyebrow !text-cream-ink/70">Open source</span>
             <h2 className="display-l mt-6 max-w-2xl text-cream-ink">
               Built in the open — and free, forever.
             </h2>

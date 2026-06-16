@@ -19,7 +19,7 @@ export function SymptomCard({ data }: { data: SymptomCardData }) {
   return (
     <div className="rounded-card border border-hairline bg-surface p-5">
       <p className="text-sm text-ash">
-        <span className="text-ash/70">You said:</span> “{data.input}”
+        <span className="text-ash">You said:</span> “{data.input}”
         {data.dtcCode && <span className="ml-2 font-mono text-xs text-ash">· {data.dtcCode}</span>}
       </p>
 
@@ -38,7 +38,7 @@ export function SymptomCard({ data }: { data: SymptomCardData }) {
         <ul className="mt-3 space-y-1 text-sm text-ash">
           {data.causes.slice(1, 4).map((c, i) => (
             <li key={i} className="flex items-center gap-2">
-              <span className="font-mono text-xs uppercase text-ash/70">{c.likelihood}</span>
+              <span className="font-mono text-xs uppercase text-ash">{c.likelihood}</span>
               {c.cause}
             </li>
           ))}

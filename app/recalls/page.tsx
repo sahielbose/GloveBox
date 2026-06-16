@@ -38,7 +38,7 @@ export default function RecallsPage() {
             <RecallLookup />
           </div>
 
-          <p className="mt-10 max-w-2xl text-xs leading-relaxed text-ash/80">
+          <p className="mt-10 max-w-2xl text-xs leading-relaxed text-ash">
             Recall data comes directly from the National Highway Traffic Safety Administration
             (NHTSA). GloveBox never invents or resolves a recall — each result links to the
             official notice. This lookup is informational; confirm details and completion status

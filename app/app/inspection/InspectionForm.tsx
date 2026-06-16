@@ -40,7 +40,7 @@ export function InspectionForm() {
             className={`${inputClass} mt-2 resize-y font-mono text-sm`}
           />
         </label>
-        <p className="mt-2 text-xs text-ash/80">
+        <p className="mt-2 text-xs text-ash">
           Most shops hand you a green/yellow/red sheet. Paste it here — we&apos;ll organize it and tell
           you, in plain English, what&apos;s urgent and what can wait. Safety items are never softened.
         </p>

@@ -70,7 +70,7 @@ export function Field({
     <label className="block">
       <span className="text-sm text-ash">{label}</span>
       <div className="mt-1.5">{children}</div>
-      {hint && <span className="mt-1 block text-xs text-ash/80">{hint}</span>}
+      {hint && <span className="mt-1 block text-xs text-ash">{hint}</span>}
     </label>
   );
 }

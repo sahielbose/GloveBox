@@ -59,7 +59,7 @@ export default async function InspectionPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-ash/80">
+          <p className="mt-2 text-xs text-ash">
             Saved to your vehicle records and fed to <Link href="/app/assistant" className="underline">Ask GloveBox</Link>.
           </p>
         </div>

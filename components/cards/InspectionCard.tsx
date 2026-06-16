@@ -45,7 +45,7 @@ export function InspectionCard({ data }: { data: InspectionCardData }) {
                 )}
               </div>
               <p className="mt-1 text-xs leading-relaxed text-ash">{it.note}</p>
-              <span className="mt-1 inline-block font-mono text-[0.7rem] uppercase text-ash/70">{it.area}</span>
+              <span className="mt-1 inline-block font-mono text-[0.7rem] uppercase text-ash">{it.area}</span>
             </div>
             <div className="flex shrink-0 items-center gap-2">
               {it.measurement && <span className="font-mono text-xs text-ash">{it.measurement}</span>}
@@ -55,7 +55,7 @@ export function InspectionCard({ data }: { data: InspectionCardData }) {
         ))}
       </ul>
 
-      <p className="mt-4 text-xs text-ash/80">{data.disclaimer}</p>
+      <p className="mt-4 text-xs text-ash">{data.disclaimer}</p>
     </div>
   );
 }

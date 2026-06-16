@@ -64,7 +64,7 @@ export function QuoteCheckCard({ data }: { data: QuoteCardData }) {
         </div>
         <div className="mt-1.5 font-mono text-xs text-ash">
           {formatMoney(data.fairLowCents)}–{formatMoney(data.fairHighCents)}
-          <span className="text-ash/70"> · you were quoted {formatMoney(data.totalCents)}</span>
+          <span className="text-ash"> · you were quoted {formatMoney(data.totalCents)}</span>
         </div>
       </div>
 

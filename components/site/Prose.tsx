@@ -34,7 +34,7 @@ export function ProsePage({
             <h1 className="display-l mt-6 text-chalk">{title}</h1>
             {intro && <p className="lead mt-5 text-ash">{intro}</p>}
             {updated && (
-              <p className="mt-5 font-mono text-xs text-ash/70">Last updated {updated}</p>
+              <p className="mt-5 font-mono text-xs text-ash">Last updated {updated}</p>
             )}
           </header>
 

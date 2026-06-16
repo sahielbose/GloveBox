@@ -43,7 +43,7 @@ export function DataMarquee() {
               {SOURCES.map((s) => (
                 <li
                   key={`${dup}-${s}`}
-                  className="flex items-center whitespace-nowrap px-7 text-base font-medium tracking-tight text-ash/55 transition-colors hover:text-chalk sm:px-10"
+                  className="flex items-center whitespace-nowrap px-7 text-base font-medium tracking-tight text-ash transition-colors hover:text-chalk sm:px-10"
                 >
                   {s}
                   <span aria-hidden className="ml-7 text-ash/25 sm:ml-10">

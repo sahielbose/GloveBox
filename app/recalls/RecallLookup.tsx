@@ -98,7 +98,7 @@ export function RecallLookup() {
                 className={cn(inputClass, "mt-1.5 font-mono uppercase tracking-wide")}
               />
             </label>
-            <p className="mt-2 text-xs text-ash/80">
+            <p className="mt-2 text-xs text-ash">
               17 characters, usually on the driver-side dashboard or door jamb. We decode it
               against NHTSA&rsquo;s public vPIC service.
             </p>
