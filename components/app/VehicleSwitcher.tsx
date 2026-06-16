@@ -1,0 +1,50 @@
+"use client";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { Car, Plus } from "lucide-react";
+import Link from "next/link";
+import { setActiveVehicleAction } from "@/lib/actions/auth";
+
+type Item = { id: string; year: number | null; make: string; model: string; nickname: string | null };
+
+export function VehicleSwitcher({ vehicles, activeId }: { vehicles: Item[]; activeId: string | null }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+
+  if (vehicles.length === 0) {
+    return (
+      <Link href="/app/onboarding" className="inline-flex items-center gap-2 rounded-btn bg-sage px-4 py-2 text-sm font-medium text-ink">
+        <Plus size={15} /> Add your car
+      </Link>
+    );
+  }
+
+  const label = (v: Item) => v.nickname || [v.year, v.make, v.model].filter(Boolean).join(" ");
+
+  return (
+    <div className="flex items-center gap-2">
+      <Car size={16} className="text-ash" aria-hidden />
+      <select
+        value={activeId ?? ""}
+        disabled={pending}
+        onChange={(e) =>
+          start(async () => {
+            await setActiveVehicleAction(e.target.value);
+            router.refresh();
+          })
+        }
+        className="rounded-btn border border-hairline bg-surface px-3 py-1.5 text-sm text-chalk outline-none focus:border-sage"
+        aria-label="Active vehicle"
+      >
+        {vehicles.map((v) => (
+          <option key={v.id} value={v.id}>
+            {label(v)}
+          </option>
+        ))}
+      </select>
+      <Link href="/app/onboarding" className="rounded-btn border border-hairline p-1.5 text-ash hover:text-chalk" aria-label="Add a car">
+        <Plus size={16} />
+      </Link>
+    </div>
+  );
+}
