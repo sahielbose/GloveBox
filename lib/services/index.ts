@@ -4,6 +4,7 @@ export * from "./types";
 export * from "./decodeVehicle";
 export * from "./checkQuote";
 export * from "./decodeSymptom";
+export * from "./digitizeInspection";
 export * from "./findRecalls";
 export * from "./computeHealth";
 export * from "./structureServiceEntry";

@@ -50,3 +50,6 @@ Thumbs.db
 
 # typescript incremental build info
 *.tsbuildinfo
+
+# local Claude Code preview config
+.claude/
