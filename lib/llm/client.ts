@@ -86,6 +86,40 @@ export async function chat(opts: {
     .trim();
 }
 
+/** OCR / read text from an image using the model's vision capability. */
+export async function readImageText(opts: {
+  bytes: Uint8Array | ArrayBuffer;
+  mediaType: "image/png" | "image/jpeg" | "image/webp" | "image/gif";
+  instruction?: string;
+}): Promise<string> {
+  if (!isLLMAvailable()) throw new LLMUnavailableError();
+  const buf = opts.bytes instanceof ArrayBuffer ? new Uint8Array(opts.bytes) : opts.bytes;
+  const data = Buffer.from(buf).toString("base64");
+  const resp = await anthropic().messages.create({
+    model: MODEL(),
+    max_tokens: 1500,
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "image", source: { type: "base64", media_type: opts.mediaType, data } },
+          {
+            type: "text",
+            text:
+              opts.instruction ??
+              "Transcribe ALL text in this image exactly as written, preserving line breaks and any color/status words (GREEN/YELLOW/RED, PASS/FAIL) and measurements. Output only the transcription, no commentary.",
+          },
+        ],
+      },
+    ],
+  });
+  return resp.content
+    .filter((b): b is Anthropic.TextBlock => b.type === "text")
+    .map((b) => b.text)
+    .join("\n")
+    .trim();
+}
+
 /**
  * Structured extraction. Forces a single tool call whose input is validated
  * against the provided zod schema, retrying once with the validation error fed

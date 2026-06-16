@@ -1,6 +1,7 @@
 "use client";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { Upload } from "lucide-react";
 import { runDigitize, type InspectionState } from "./actions";
 import { InspectionCard } from "@/components/cards/InspectionCard";
 import { inputClass } from "@/components/ui";
@@ -40,9 +41,18 @@ export function InspectionForm() {
             className={`${inputClass} mt-2 resize-y font-mono text-sm`}
           />
         </label>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-btn border border-hairline px-3 py-2 text-ash transition-colors hover:border-chalk/30 hover:text-chalk focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-sage">
+            <Upload size={15} aria-hidden />
+            <span>Upload a photo or PDF</span>
+            <input type="file" name="file" accept="image/*,application/pdf,text/plain" className="sr-only" />
+          </label>
+          <span className="text-xs text-ash">or paste above</span>
+        </div>
         <p className="mt-2 text-xs text-ash">
-          Most shops hand you a green/yellow/red sheet. Paste it here — we&apos;ll organize it and tell
-          you, in plain English, what&apos;s urgent and what can wait. Safety items are never softened.
+          Most shops hand you a green/yellow/red sheet. Paste it, or upload a photo/PDF — we&apos;ll
+          organize it and tell you, in plain English, what&apos;s urgent and what can wait. Safety items
+          are never softened.
         </p>
         <div className="mt-4">
           <SubmitButton />

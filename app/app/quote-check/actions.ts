@@ -56,12 +56,21 @@ export async function runQuoteCheck(
     return { ok: false, error: "Add a car first to check a quote against it." };
   }
 
-  const text = String(formData.get("estimateText") ?? "").trim();
+  const pasted = String(formData.get("estimateText") ?? "").trim();
   const shopNameInput = String(formData.get("shopName") ?? "").trim();
   const regionInput = String(formData.get("region") ?? "").trim();
   const region = regionInput.length ? regionInput : null;
 
-  // Parse the pasted estimate (if any) and fold in any manual line items.
+  // Optional upload: photo/PDF of the estimate, OCR'd and folded into the text.
+  let text = pasted;
+  const file = formData.get("estimateFile");
+  if (file instanceof File && file.size > 0) {
+    const { extractTextFromUpload } = await import("@/lib/integrations/ocr");
+    const ocr = await extractTextFromUpload(await file.arrayBuffer(), file.type, file.name);
+    if (ocr.text) text = [pasted, ocr.text].filter(Boolean).join("\n");
+  }
+
+  // Parse the pasted/uploaded estimate (if any) and fold in any manual line items.
   const parsed = text
     ? await parseEstimateText(text)
     : { shopName: null, lineItems: [] as LineItem[] };

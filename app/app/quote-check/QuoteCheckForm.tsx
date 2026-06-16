@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Plus, X, AlertCircle, Flag } from "lucide-react";
+import { Plus, X, AlertCircle, Flag, Upload } from "lucide-react";
 import { Button, Field, inputClass } from "@/components/ui";
 import { QuoteCheckCard } from "@/components/cards/QuoteCheckCard";
 import { formatMoney, cn } from "@/lib/utils";
@@ -52,6 +52,15 @@ export function QuoteCheckForm({
               className={cn(inputClass, "min-h-[8rem] resize-y font-mono text-sm")}
             />
           </Field>
+
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-btn border border-hairline px-3 py-2 text-ash transition-colors hover:border-chalk/30 hover:text-chalk focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-sage">
+              <Upload size={15} aria-hidden />
+              <span>Upload a photo or PDF of the estimate</span>
+              <input type="file" name="estimateFile" accept="image/*,application/pdf,text/plain" className="sr-only" />
+            </label>
+            <span className="text-xs text-ash">or paste above</span>
+          </div>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <Field label="Shop name" hint="Optional — appears on the verdict and in your history.">
