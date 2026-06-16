@@ -61,10 +61,6 @@ docker compose up        # app + postgres(pgvector) + inngest`}</code>
         <li>
           <strong>TWILIO_*</strong> — SMS reminders. Without it, reminders are email-only.
         </li>
-        <li>
-          <strong>PRICING_API_KEY</strong> — an optional paid parts/labor provider. Without it, the
-          curated pricing model runs.
-        </li>
       </ul>
 
       <h2>Fully local, no cloud keys</h2>

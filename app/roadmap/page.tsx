@@ -33,11 +33,6 @@ export default function RoadmapPage() {
       </p>
       <ul>
         <li>
-          <strong>Parts &amp; labor pricing</strong> — swap the curated model for a paid provider
-          (for example PartsTech, MOTOR labor times, or CarMD) behind the same interface, for tighter
-          Quote Check ranges.
-        </li>
-        <li>
           <strong>OEM-exact maintenance intervals</strong> — replace the curated interval seed with a
           licensed schedule source where one is available.
         </li>

@@ -79,8 +79,8 @@ export default function DocsPage() {
       <p>
         Two areas have no clean free API, so GloveBox ships <strong>curated seed data</strong>,
         clearly labeled as estimates: common maintenance intervals, and a parts/labor pricing model
-        (standard labor hours × regional rates × parts ranges). A paid provider can be swapped in
-        later, but the free model is the default.
+        (standard labor hours × regional rates × parts ranges). Quote Check pricing is this free,
+        open curated model — there is no paid pricing provider.
       </p>
 
       <h2>Quickstart</h2>

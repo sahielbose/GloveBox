@@ -64,7 +64,7 @@ Only **four** vars are required to run; everything else is optional and degrades
 | `ANTHROPIC_API_KEY` | Claude (explanations, extraction, assistant) | deterministic offline fallbacks; trust-critical verbs still work |
 | `RESEND_API_KEY` | magic-link + digest email | magic links print to the server console |
 
-Optional: `OPENAI_API_KEY` (Whisper voice + better embeddings — else local fallback), storage S3 creds (else local `./storage`), Twilio (SMS — else email), `INNGEST_*` (prod jobs), `PRICING_API_KEY` (paid pricing swap — else curated model).
+Optional: `OPENAI_API_KEY` (Whisper voice + better embeddings — else local fallback), storage S3 creds (else local `./storage`), Twilio (SMS — else email), `INNGEST_*` (prod jobs). Quote Check pricing is the free curated model — there is no paid pricing tier or provider.
 
 ## Commands
 
