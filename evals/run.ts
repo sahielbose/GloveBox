@@ -2,11 +2,13 @@ import "dotenv/config";
 import { checkQuote } from "@/lib/services/checkQuote";
 import { decodeSymptom } from "@/lib/services/decodeSymptom";
 import { structureServiceEntry } from "@/lib/services/structureServiceEntry";
+import { digitizeInspection } from "@/lib/services/digitizeInspection";
 import { findRecalls } from "@/lib/services/findRecalls";
 import { decodeVehicle } from "@/lib/services/decodeVehicle";
 import { QUOTE_CASES } from "./cases/quote-check";
 import { SYMPTOM_CASES } from "./cases/symptom-urgency";
 import { SERVICE_ENTRY_CASES } from "./cases/service-entry";
+import { INSPECTION_CASES } from "./cases/inspection";
 import { RECALL_CASES } from "./cases/recall-match";
 import { VIN_CASES } from "./cases/vin-decode";
 import thresholds from "./thresholds.json" with { type: "json" };
@@ -112,6 +114,46 @@ async function serviceSuite(): Promise<Suite> {
   };
 }
 
+async function inspectionSuite(): Promise<Suite> {
+  let exact = 0;
+  let total = 0;
+  let safetyUnderClass = 0;
+  const failures: string[] = [];
+  for (const c of INSPECTION_CASES) {
+    const r = await digitizeInspection({ text: c.text, vehicle: c.vehicle });
+    for (const e of c.expect) {
+      total++;
+      const got = r.items.find((it) => it.item.toLowerCase().includes(e.match) || `${it.area} ${it.item}`.toLowerCase().includes(e.match));
+      if (!got) {
+        failures.push(`${c.name}: no item matched "${e.match}"`);
+        continue;
+      }
+      if (got.status === e.status) exact++;
+      else {
+        const order = { ok: 0, soon: 1, alert: 2 } as const;
+        if (e.safety && order[got.status] < order[e.status]) {
+          safetyUnderClass++;
+          failures.push(`⚠ UNDER-CLASS (safety): ${c.name} "${e.match}" → ${got.status}, expected ${e.status}`);
+        } else {
+          failures.push(`${c.name} "${e.match}" → ${got.status}, expected ${e.status}`);
+        }
+      }
+    }
+  }
+  const acc = total === 0 ? 1 : exact / total;
+  const th = (thresholds as Record<string, { accuracy: number; maxSafetyUnderClass: number }>)["inspection"];
+  return {
+    name: "MPI digitization",
+    kind: "gate",
+    passed: acc >= th.accuracy && safetyUnderClass <= th.maxSafetyUnderClass,
+    metrics: {
+      accuracy: pct(acc, th.accuracy),
+      "safety under-classifications": `${safetyUnderClass} (max ${th.maxSafetyUnderClass})`,
+    },
+    failures,
+  };
+}
+
 async function recallSuite(): Promise<Suite> {
   const failures: string[] = [];
   let okCases = 0;
@@ -189,6 +231,7 @@ async function main() {
     await quoteSuite(),
     await symptomSuite(),
     await serviceSuite(),
+    await inspectionSuite(),
     await recallSuite(),
     await vinSuite(),
   ];
