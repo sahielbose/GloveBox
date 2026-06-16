@@ -239,7 +239,7 @@ export function DocumentUploadForm({ vehicleId }: { vehicleId: string }) {
 
       <Field
         label="Document text"
-        hint="Paste the text (or key sections) so Ask GloveBox can cite it. Optional — OCR isn't wired up yet."
+        hint="Optional — we OCR uploaded PDFs/photos automatically. Paste text here only to override or add key sections for Ask GloveBox to cite."
       >
         <textarea
           name="text"

@@ -136,17 +136,28 @@ export async function uploadDocumentAction(_prev: FormResult, formData: FormData
     return { ok: false, message: "Attach a file or paste some document text." };
   }
 
-  // 1) Store the file (local in dev), if one was attached.
+  // 1) Store the file (local in dev), if one was attached, and OCR/extract its
+  //    text so uploaded manuals/insurance PDFs & photos reach RAG (spec §3/§11).
   let fileUrl: string | null = null;
   let fileName: string | null = null;
+  let ocrText = "";
   if (hasFile) {
     const bytes = await file.arrayBuffer();
     const saved = await saveFile(vehicleId, file.name, bytes);
     fileUrl = saved.url;
     fileName = file.name;
+    if (!pastedText) {
+      try {
+        const { extractTextFromUpload } = await import("@/lib/integrations/ocr");
+        const ocr = await extractTextFromUpload(bytes, file.type, file.name);
+        ocrText = ocr.text;
+      } catch {
+        // OCR is best-effort — the file is still saved.
+      }
+    }
   }
 
-  const extractedText = pastedText || null;
+  const extractedText = pastedText || ocrText || null;
 
   // 2) Record the document.
   const doc = await addDocument(vehicleId, {
