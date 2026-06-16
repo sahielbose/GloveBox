@@ -47,3 +47,6 @@ Thumbs.db
 
 # whisper local models
 /.models
+
+# typescript incremental build info
+*.tsbuildinfo
