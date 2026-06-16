@@ -195,8 +195,24 @@ export function FeatureTabs() {
                   key={tab.key}
                   type="button"
                   role="tab"
+                  id={`feature-tab-${tab.key}`}
                   aria-selected={isActive}
+                  aria-controls="feature-tabpanel"
+                  tabIndex={isActive ? 0 : -1}
                   onClick={() => setActive(tab.key)}
+                  onKeyDown={(e) => {
+                    const idx = TABS.findIndex((t) => t.key === tab.key);
+                    let next = -1;
+                    if (e.key === "ArrowDown" || e.key === "ArrowRight") next = (idx + 1) % TABS.length;
+                    else if (e.key === "ArrowUp" || e.key === "ArrowLeft") next = (idx - 1 + TABS.length) % TABS.length;
+                    else if (e.key === "Home") next = 0;
+                    else if (e.key === "End") next = TABS.length - 1;
+                    if (next >= 0) {
+                      e.preventDefault();
+                      setActive(TABS[next].key);
+                      document.getElementById(`feature-tab-${TABS[next].key}`)?.focus();
+                    }
+                  }}
                   className={cn(
                     "group relative flex flex-col gap-1.5 border-b border-hairline py-5 pl-5 pr-3 text-left transition-colors",
                     isActive ? "text-chalk" : "text-ash hover:text-chalk",
@@ -234,6 +250,9 @@ export function FeatureTabs() {
           {/* Media panel — calm dark gradient, card floats over it. */}
           <div
             role="tabpanel"
+            id="feature-tabpanel"
+            aria-labelledby={`feature-tab-${active}`}
+            tabIndex={0}
             className="relative flex min-h-[26rem] items-center justify-center overflow-hidden rounded-media border border-hairline p-6 sm:p-10"
           >
             <div
