@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { Plus, X, AlertCircle, Flag, Upload } from "lucide-react";
 import { Button, Field, inputClass } from "@/components/ui";
 import { QuoteCheckCard } from "@/components/cards/QuoteCheckCard";
+import { DraftMessage } from "@/components/app/DraftMessage";
 import { formatMoney, cn } from "@/lib/utils";
 import { runQuoteCheck, type QuoteCheckState } from "./actions";
 
@@ -182,6 +183,20 @@ export function QuoteCheckForm({
           <div className="rounded-card border border-hairline bg-surface p-5">
             <span className="eyebrow">In plain English</span>
             <p className="mt-3 text-base leading-relaxed text-chalk">{result.summary}</p>
+          </div>
+
+          {/* Draft a message to the shop — prepared, never auto-sent. */}
+          <div className="rounded-card border border-hairline bg-surface p-5">
+            <span className="eyebrow">Next step</span>
+            <p className="mt-3 text-sm text-ash">
+              Want to push back on the flagged items? Draft a polite message — you review and send it.
+            </p>
+            <div className="mt-4">
+              <DraftMessage
+                kind="quote"
+                detail={`I got a quote${state?.ok && state.shopName ? ` from ${state.shopName}` : ""} for my ${vehicleLabel}: ${formatMoney(result.quotedTotalCents)} total. The typical range for the items I could price is ${formatMoney(result.fairLowCents)}–${formatMoney(result.fairHighCents)}. I'd like to ask about: ${result.flags.map((f) => f.lineItem).join(", ") || "the overall price"}. Is there any flexibility?`}
+              />
+            </div>
           </div>
 
           {/* Annotated line items */}

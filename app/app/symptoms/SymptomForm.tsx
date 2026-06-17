@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { OctagonAlert, AlertCircle, ArrowRight, BookText, Check } from "lucide-react";
 import { LinkButton, Button, Field, inputClass } from "@/components/ui";
 import { SymptomCard } from "@/components/cards/SymptomCard";
+import { DraftMessage } from "@/components/app/DraftMessage";
 import { cn } from "@/lib/utils";
 import {
   runDecodeSymptom,
@@ -128,6 +129,10 @@ export function SymptomForm({ vehicleLabel }: { vehicleLabel: string }) {
                 symptom={state?.ok ? state.input : ""}
                 diagnosis={topCause}
                 vehicleLabel={vehicleLabel}
+              />
+              <DraftMessage
+                kind="symptom"
+                detail={`My ${vehicleLabel} has this symptom: "${state?.ok ? state.input : ""}".${topCause ? ` It looks like it could be ${topCause}.` : ""} I'd like to book a time to have it diagnosed.`}
               />
             </div>
           </div>
