@@ -3,8 +3,7 @@ import { eq } from "drizzle-orm";
 import { db, sql } from "./client";
 import { users, vehicles, serviceRecords, recallMatches } from "./schema";
 import { findRecalls } from "@/lib/services/findRecalls";
-import { ingestChunks, chunkText } from "@/lib/rag";
-import { MAINTENANCE_INTERVALS } from "@/data";
+import { ingestMaintenanceSchedule } from "@/lib/rag";
 
 /**
  * Seed an explorable demo account. Idempotent — safe to run on every boot.
@@ -79,14 +78,7 @@ async function main() {
 
   // Ingest the curated maintenance schedule into the demo car's RAG context.
   try {
-    await ingestChunks(
-      vehicle.id,
-      MAINTENANCE_INTERVALS.map((iv) => ({
-        kind: "maintenance" as const,
-        content: `${iv.service}: every ${iv.intervalMiles ? `${iv.intervalMiles.toLocaleString()} mi` : ""}${iv.intervalMiles && iv.intervalMonths ? " / " : ""}${iv.intervalMonths ? `${iv.intervalMonths} months` : ""}. ${iv.note}`,
-        sourceLabel: `Curated maintenance schedule — ${iv.service}`,
-      })).flatMap((c) => chunkText(c.content).map((content) => ({ ...c, content }))),
-    );
+    await ingestMaintenanceSchedule(vehicle.id);
     console.log("✓ ingested curated maintenance schedule into RAG");
   } catch (e) {
     console.log("· RAG ingest skipped:", (e as Error).message);

@@ -114,11 +114,19 @@ export async function saveVehicleAction(
     specs: buildSpecs(decoded),
   });
 
-  // Best-effort recall sync at onboarding — never block the save on it.
+  // Best-effort recall sync + curated maintenance schedule ingest at onboarding —
+  // never block the save on either. Seeds RAG sources (1) schedules and (2) recalls
+  // so Ask GloveBox can cite them for the newly-added car.
   try {
     await syncRecalls(vehicle.id, toVehicle(vehicle));
   } catch {
     // ignore — recalls can be re-synced from the recall radar later
+  }
+  try {
+    const { ingestMaintenanceSchedule } = await import("@/lib/rag");
+    await ingestMaintenanceSchedule(vehicle.id);
+  } catch {
+    // ignore — RAG ingest is best-effort
   }
 
   redirect("/app");

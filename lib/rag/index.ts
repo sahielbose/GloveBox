@@ -1,6 +1,7 @@
 import { and, cosineDistance, desc, eq, gt, sql } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { chunks } from "@/lib/db/schema";
+import { MAINTENANCE_INTERVALS } from "@/data";
 import { embed, embedOne } from "./embed";
 
 export { EMBED_DIM, embeddingMode } from "./embed";
@@ -55,6 +56,24 @@ export async function ingestChunks(
     })),
   );
   return items.length;
+}
+
+/**
+ * Ingest the curated maintenance schedule (RAG source #1, spec §7) for a vehicle
+ * so Ask GloveBox can cite "what your schedule says". Replaces any existing
+ * maintenance chunks so it's safe to call again.
+ */
+export async function ingestMaintenanceSchedule(vehicleId: string): Promise<number> {
+  const items: IngestItem[] = MAINTENANCE_INTERVALS.flatMap((iv) => {
+    const content = `${iv.service}: every ${iv.intervalMiles ? `${iv.intervalMiles.toLocaleString()} mi` : ""}${iv.intervalMiles && iv.intervalMonths ? " / " : ""}${iv.intervalMonths ? `${iv.intervalMonths} months` : ""}. ${iv.note}`;
+    return chunkText(content).map((c) => ({
+      kind: "maintenance" as const,
+      content: c,
+      sourceLabel: `Curated maintenance schedule — ${iv.service}`,
+    }));
+  });
+  await db.delete(chunks).where(and(eq(chunks.vehicleId, vehicleId), eq(chunks.kind, "maintenance")));
+  return ingestChunks(vehicleId, items);
 }
 
 /** Replace all chunks of a given kind for a vehicle (used when re-caching recalls). */
