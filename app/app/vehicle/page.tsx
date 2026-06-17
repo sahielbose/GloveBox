@@ -12,6 +12,7 @@ import {
   DeleteForm,
   DocumentUploadForm,
 } from "./VehicleForms";
+import { PhotoForm } from "./PhotoForm";
 import { switchActiveAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -95,6 +96,10 @@ export default async function VehiclePage() {
           <h2 className="mb-4 text-base font-medium text-chalk">Nickname</h2>
           <NicknameForm vehicleId={active.id} nickname={active.nickname} />
         </section>
+      </div>
+
+      <div className="mt-5">
+        <PhotoForm vehicleId={active.id} photoUrl={active.photoUrl} label={carLabel} />
       </div>
 
       {/* Documents */}

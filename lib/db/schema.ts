@@ -94,6 +94,7 @@ export const vehicles = pgTable(
     engine: text("engine"),
     mileage: integer("mileage").default(0).notNull(),
     nickname: text("nickname"),
+    photoUrl: text("photoUrl"),
     isPrimary: boolean("isPrimary").default(false).notNull(),
     // raw vPIC decode + FuelEconomy specs, kept for the vehicle profile
     specs: jsonb("specs").$type<Record<string, unknown>>(),

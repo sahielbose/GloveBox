@@ -15,6 +15,13 @@
       "when": 1781652005176,
       "tag": "0001_polite_talos",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781683846515,
+      "tag": "0002_nasty_gateway",
+      "breakpoints": true
     }
   ]
 }

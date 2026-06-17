@@ -193,6 +193,24 @@ export async function uploadDocumentAction(_prev: FormResult, formData: FormData
   };
 }
 
+/** Set the car's profile photo. Image stored via the authed file store. */
+export async function setVehiclePhotoAction(_prev: FormResult, formData: FormData): Promise<FormResult> {
+  const user = await requireUser();
+  const vehicleId = String(formData.get("vehicleId") ?? "");
+  const file = formData.get("photo");
+
+  const owned = await getVehicleForUser(user.id, vehicleId);
+  if (!owned) return { ok: false, message: "Couldn't find that car." };
+  if (!(file instanceof File) || file.size === 0 || !file.type.startsWith("image/")) {
+    return { ok: false, message: "Choose an image file (JPG, PNG, …)." };
+  }
+
+  const saved = await saveFile(vehicleId, file.name, await file.arrayBuffer());
+  await updateVehicle(user.id, vehicleId, { photoUrl: saved.url });
+  revalidate();
+  return { ok: true, message: "Photo updated." };
+}
+
 function prettyKind(kind: string): string {
   return kind.charAt(0).toUpperCase() + kind.slice(1);
 }
