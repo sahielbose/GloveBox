@@ -5,7 +5,7 @@ import { vehicles, users, reminders } from "@/lib/db/schema";
 import { syncRecalls, markRecallNotified, toVehicle } from "@/lib/db/queries";
 import { computeHealth } from "@/lib/services/computeHealth";
 import { listServiceRecords } from "@/lib/db/queries";
-import { sendEmail } from "@/lib/integrations/email";
+import { notifyUser } from "@/lib/integrations/notify";
 import { formatMiles } from "@/lib/utils";
 
 /**
@@ -17,7 +17,7 @@ export const recallPoll = inngest.createFunction(
   { id: "recall-poll", name: "Daily recall poll", triggers: [{ cron: "0 13 * * *" }] },
   async ({ step }) => {
     const rows = await db
-      .select({ v: vehicles, channel: users.reminderChannel, email: users.email })
+      .select({ v: vehicles, channel: users.reminderChannel, email: users.email, phone: users.phone })
       .from(vehicles)
       .innerJoin(users, eq(vehicles.userId, users.id));
 
@@ -33,11 +33,14 @@ export const recallPoll = inngest.createFunction(
         const body = fresh
           .map((m) => `• [${m.severity.toUpperCase()}] ${m.component} (${m.source} ${m.campaignId})\n  ${m.summary}\n  Remedy: ${m.remedy}\n  ${m.provenanceUrl}`)
           .join("\n\n");
-        await sendEmail({
-          to: row.email,
-          subject: `New recall${fresh.length > 1 ? "s" : ""} for your ${label}`,
-          html: `<p>We found ${fresh.length} new recall(s) for your <strong>${label}</strong>.</p><pre style="white-space:pre-wrap;font-family:ui-monospace,monospace">${escapeHtml(body)}</pre><p>Open GloveBox to prep a dealer visit. Recall repairs are free.</p>`,
-        });
+        await notifyUser(
+          { email: row.email, phone: row.phone, channel: row.channel },
+          {
+            subject: `New recall${fresh.length > 1 ? "s" : ""} for your ${label}`,
+            html: `<p>We found ${fresh.length} new recall(s) for your <strong>${label}</strong>.</p><pre style="white-space:pre-wrap;font-family:ui-monospace,monospace">${escapeHtml(body)}</pre><p>Open GloveBox to prep a dealer visit. Recall repairs are free.</p>`,
+            text: `${fresh.length} new recall(s) for your ${label}:\n\n${body}`,
+          },
+        );
         notified++;
       } catch {
         // best-effort per vehicle
@@ -55,7 +58,7 @@ export const maintenanceDigest = inngest.createFunction(
   { id: "maintenance-digest", name: "Maintenance digest", triggers: [{ cron: "0 14 * * 1" }] }, // Mondays
   async () => {
     const rows = await db
-      .select({ v: vehicles, freq: users.digestFrequency, email: users.email })
+      .select({ v: vehicles, freq: users.digestFrequency, email: users.email, phone: users.phone, channel: users.reminderChannel })
       .from(vehicles)
       .innerJoin(users, eq(vehicles.userId, users.id));
 
@@ -80,11 +83,14 @@ export const maintenanceDigest = inngest.createFunction(
         const body = due
           .map((i) => `• [${i.status.toUpperCase()}] ${i.service} — ${i.reason}`)
           .join("\n");
-        await sendEmail({
-          to: row.email,
-          subject: `What's due on your ${label}`,
-          html: `<p>Maintenance check for your <strong>${label}</strong> (${formatMiles(row.v.mileage)}):</p><pre style="white-space:pre-wrap;font-family:ui-monospace,monospace">${escapeHtml(body)}</pre><p style="color:#888">Estimates — confirm against your owner's manual.</p>`,
-        });
+        await notifyUser(
+          { email: row.email, phone: row.phone, channel: row.channel },
+          {
+            subject: `What's due on your ${label}`,
+            html: `<p>Maintenance check for your <strong>${label}</strong> (${formatMiles(row.v.mileage)}):</p><pre style="white-space:pre-wrap;font-family:ui-monospace,monospace">${escapeHtml(body)}</pre><p style="color:#888">Estimates — confirm against your owner's manual.</p>`,
+            text: `What's due on your ${label} (${formatMiles(row.v.mileage)}):\n\n${body}\n\nEstimates — confirm against your owner's manual.`,
+          },
+        );
         sent++;
       } catch {
         // best-effort
@@ -102,7 +108,7 @@ export const reminderFire = inngest.createFunction(
   { id: "reminder-fire", name: "Fire due reminders", triggers: [{ cron: "*/15 * * * *" }] },
   async () => {
     const due = await db
-      .select({ r: reminders, email: users.email })
+      .select({ r: reminders, email: users.email, phone: users.phone, userChannel: users.reminderChannel })
       .from(reminders)
       .innerJoin(users, eq(reminders.userId, users.id))
       .where(and(eq(reminders.status, "scheduled"), lte(reminders.scheduleAt, new Date())));
@@ -110,11 +116,14 @@ export const reminderFire = inngest.createFunction(
     let fired = 0;
     for (const row of due) {
       try {
-        await sendEmail({
-          to: row.email,
-          subject: row.r.title,
-          html: `<p>${escapeHtml(row.r.body ?? row.r.title)}</p><p style="color:#888">A reminder you set in GloveBox.</p>`,
-        });
+        await notifyUser(
+          { email: row.email, phone: row.phone, channel: row.r.channel ?? row.userChannel },
+          {
+            subject: row.r.title,
+            html: `<p>${escapeHtml(row.r.body ?? row.r.title)}</p><p style="color:#888">A reminder you set in GloveBox.</p>`,
+            text: `${row.r.title}\n\n${row.r.body ?? ""}\n\nA reminder you set in GloveBox.`,
+          },
+        );
         await db.update(reminders).set({ status: "sent" }).where(eq(reminders.id, row.r.id));
         fired++;
       } catch {
