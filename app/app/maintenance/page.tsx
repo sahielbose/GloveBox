@@ -8,6 +8,8 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { Eyebrow, LinkButton } from "@/components/ui";
 import { formatMiles, formatMoney } from "@/lib/utils";
 import { MarkDone } from "./MarkDone";
+import { RemindMe } from "./RemindMe";
+import { AddToCalendar } from "@/components/app/AddToCalendar";
 
 export const dynamic = "force-dynamic";
 
@@ -142,6 +144,17 @@ export default async function MaintenancePage() {
               </dl>
 
               {item.note && <p className="mt-3 text-sm leading-relaxed text-ash">{item.note}</p>}
+
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <RemindMe service={item.service} dueDate={item.dueDate} />
+                {item.dueDate && (
+                  <AddToCalendar
+                    title={`${item.service} due — ${vehicleLabel(active)}`}
+                    description={item.note}
+                    date={item.dueDate}
+                  />
+                )}
+              </div>
             </li>
           );
         })}
