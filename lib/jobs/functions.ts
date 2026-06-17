@@ -2,7 +2,7 @@ import { and, eq, lte } from "drizzle-orm";
 import { inngest } from "./client";
 import { db } from "@/lib/db/client";
 import { vehicles, users, reminders } from "@/lib/db/schema";
-import { syncRecalls, markRecallNotified, toVehicle } from "@/lib/db/queries";
+import { syncRecalls, markVehicleRecallsNotified, toVehicle } from "@/lib/db/queries";
 import { computeHealth } from "@/lib/services/computeHealth";
 import { listServiceRecords } from "@/lib/db/queries";
 import { notifyUser } from "@/lib/integrations/notify";
@@ -41,6 +41,7 @@ export const recallPoll = inngest.createFunction(
             text: `${fresh.length} new recall(s) for your ${label}:\n\n${body}`,
           },
         );
+        await markVehicleRecallsNotified(row.v.id); // don't re-notify these next run
         notified++;
       } catch {
         // best-effort per vehicle

@@ -192,6 +192,14 @@ export async function markRecallNotified(id: string) {
   await db.update(recallMatches).set({ notified: true }).where(eq(recallMatches.id, id));
 }
 
+/** Mark all not-yet-notified recalls for a vehicle as notified (after a digest send). */
+export async function markVehicleRecallsNotified(vehicleId: string) {
+  await db
+    .update(recallMatches)
+    .set({ notified: true })
+    .where(and(eq(recallMatches.vehicleId, vehicleId), eq(recallMatches.notified, false)));
+}
+
 /* ── Documents ─────────────────────────────────────────────────────────────── */
 
 export async function addDocument(
